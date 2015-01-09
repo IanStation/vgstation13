@@ -13,7 +13,6 @@
 	var/energy = 0
 	var/max_energy = 100
 	var/amount = 30
-	var/obj/item/weapon/reagent_containers/glass/beaker = null
 	var/recharged = 0
 	var/custom = 0
 	var/list/dispensable_reagents = list("hydrogen","lithium","carbon","nitrogen","oxygen","fluorine",
@@ -246,7 +245,6 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	icon_state = "mixer0"
 	use_power = 1
 	idle_power_usage = 20
-	var/obj/item/weapon/reagent_containers/glass/beaker = null
 	var/obj/item/weapon/storage/pill_bottle/loaded_pill_bottle = null
 	var/mode = 0
 	var/condi = 0
@@ -258,7 +256,7 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 
 	l_color = "#0000FF"
 
-	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK
+	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK | INSERTBEAKER
 
 /********************************************************************
 **   Adding Stock Parts to VV so preconstructed shit has its candy **
@@ -640,9 +638,9 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	idle_power_usage = 20
 	var/temphtml = ""
 	var/wait = null
-	var/obj/item/weapon/reagent_containers/glass/beaker = null
 
 	l_color = "#0000FF"
+	machine_flags = INSERTBEAKER
 
 /********************************************************************
 **   Adding Stock Parts to VV so preconstructed shit has its candy **
@@ -924,8 +922,8 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	use_power = 1
 	idle_power_usage = 5
 	active_power_usage = 100
+	machine_flags = INSERTBEAKER
 	var/inuse = 0
-	var/obj/item/weapon/reagent_containers/beaker = null
 	var/limit = 10
 	var/list/blend_items = list (
 
