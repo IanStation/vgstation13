@@ -256,7 +256,7 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 
 	l_color = "#0000FF"
 
-	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK | INSERTBEAKER
+	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK | INSERTBEAKER | EJECTNOTDEL
 
 /********************************************************************
 **   Adding Stock Parts to VV so preconstructed shit has its candy **
@@ -640,7 +640,7 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	var/wait = null
 
 	l_color = "#0000FF"
-	machine_flags = INSERTBEAKER
+	machine_flags = SCREWTOGGLE | CROWDESTROY | FIXED2WORK | INSERTBEAKER | EJECTNOTDEL
 
 /********************************************************************
 **   Adding Stock Parts to VV so preconstructed shit has its candy **
@@ -922,7 +922,7 @@ USE THIS CHEMISTRY DISPENSER FOR MAPS SO THEY START AT 100 ENERGY
 	use_power = 1
 	idle_power_usage = 5
 	active_power_usage = 100
-	machine_flags = INSERTBEAKER
+	machine_flags = INSERTBEAKER | EJECTNOTDEL
 	var/inuse = 0
 	var/limit = 10
 	var/list/blend_items = list (
