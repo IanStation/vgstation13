@@ -1,8 +1,17 @@
 /datum/find/generator
-	findable_types = list()
 	source_materials = list("cordite","quadrinium","steel","titanium","aluminium","ferritic-alloy","plasteel","duranium")
 	material_descriptors = list("rusted ","dusty ","archaic ","fragile ")
 	possible_descriptors = list()
+/datum/find/generator/proc/pick()
+	var find_type = pick(
+		5;/datum/find/type/bowl,
+		5;/datum/find/type/utensil,
+		5;/datum/find/type/statuette,
+		5;/datum/find/type/instrument,
+		5;/datum/find/type/blade,
+		)
+
+
 
 // Muh easily extendable code, so you can easily add whatever stupid eldritch utensils you want as variants (sporks, for instance)
 /datum/find/variants
