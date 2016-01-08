@@ -1,7 +1,5 @@
 // This will mostly contain helper procs and stuff for dynamic event handling.
 
-var/global/datum/dynamic_coordinator/coordinator = null
-
 /proc/get_living_heads()
 	var/list/heads = list()
 	for(var/mob/living/carbon/human/player in mob_list)

@@ -3,8 +3,11 @@
 #define DIFFICULTY_FOR_AI 50
 #define DIFFICULTY_PER_BORG 15
 
+var/global/datum/dynamic_coordinator/coordinator = null
+
 /datum/dynamic_coordinator/coordinator
-  var/list/events = list()
+  var/list/running_events = list()
+  var/list/possible_events = typesof(/datum/events) - /datum/events
 
 /datum/dynamic_coordinator/coordinator/proc/calculate_difficulty()
   var/difficulty = 0

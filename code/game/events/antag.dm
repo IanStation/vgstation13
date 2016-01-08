@@ -2,8 +2,8 @@
 
 /datum/antag
   var/type = null
-  var/difficulty_rating = 0
   var/datum/mind/player = null
+  var/disabled = 0 //Irreversably brainwashed out of being bad or something I don't know
 
 /datum/antag/New(var/datum/mind/M)
   for(var/datum/antag/A in antags)
@@ -12,4 +12,13 @@
       return 0
   player = M
   antags += src
+  return 1
+
+
+//OVERRIDE ME AS NEEDED. This should work for antags such as traitors and xenos.
+/datum/antag/proc/is_active()
+  if(disabled) return 0
+  if(player.current && istype(player.current, /mob/living)
+    if(player.current.isUnconscious)
+      return 0
   return 1
