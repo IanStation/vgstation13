@@ -16,6 +16,8 @@
 	var/obj/screen/blind = null
 	var/obj/screen/hands = null
 	var/obj/screen/pullin = null
+	var/obj/screen/kick_icon = null
+	var/obj/screen/bite_icon = null
 	var/obj/screen/visible = null
 	var/obj/screen/purged = null
 	var/obj/screen/internals = null
@@ -140,6 +142,7 @@
 	var/stunned = 0.0
 	var/weakened = 0.0
 	var/losebreath = 0.0//Carbon
+	var/nobreath = 0.0//Carbon, but only used for humans so far
 	var/intent = null//Living
 	var/shakecamera = 0
 	var/a_intent = I_HELP//Living

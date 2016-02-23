@@ -63,6 +63,9 @@
 	attack(user, user) //This is painful, but it works, I guess
 	return
 
+/obj/item/weapon/reagent_containers/food/snacks/bite_act(mob/user) //nom nom
+	attack_self(user)
+
 /obj/item/weapon/reagent_containers/food/snacks/New()
 
 	..()
@@ -194,7 +197,8 @@
 
 	if (..()) return
 
-	if((slices_num <= 0 || !slices_num) || !slice_path) //If the food item isn't sliceable, we have no more business to do here, return
+	//If we have reached this point, then we're either trying to slice the fooditem or trying to slip something inside it. Both require us to be sliceable.
+	if((slices_num <= 0 || !slices_num) || !slice_path || istype(W,/obj/item/weapon/reagent_containers/syringe)) //Let's also not slice with syringes.
 		return 0
 
 	if(W.w_class <= 2 && W.is_sharp() < 0.8 && !istype(W,/obj/item/device/analyzer/plant_analyzer)) //Make sure the item is valid to attempt slipping shit into it
@@ -1872,6 +1876,15 @@
 	New()
 		..()
 		reagents.add_reagent("nutriment", 8)
+		bitesize = 2
+
+/obj/item/weapon/reagent_containers/food/snacks/mommispaghetti
+	name = "bowl of MoMMi spaghetti "
+	desc = "You can feel the autism in this one."
+	icon_state = "spaghettiboiled"
+	New()
+		..()
+		reagents.add_reagent("autistnanites", 2)
 		bitesize = 2
 
 /obj/item/weapon/reagent_containers/food/snacks/boiledspaghetti

@@ -52,7 +52,7 @@ var/global/obj/screen/fuckstat/FUCK = new
 	gui_icons = null
 	qdel(hud_used)
 	hud_used = null
-	for(var/obj/leftovers in src)
+	for(var/atom/movable/leftovers in src)
 		qdel(leftovers)
 	if(on_uattack)
 		on_uattack.holder = null
@@ -973,6 +973,7 @@ var/list/slot_equipment_priority = list( \
 	set category = "IC"
 	set src = usr
 
+	if(attack_delayer.blocked()) return
 
 	if(istype(loc,/obj/mecha)) return
 
@@ -1447,16 +1448,16 @@ var/list/slot_equipment_priority = list( \
 
 //Updates canmove, lying and icons. Could perhaps do with a rename but I can't think of anything to describe it.
 /mob/proc/update_canmove()
-	if(locked_to)
+	if(locked_to && !(locked_to.lockflags & LOCKED_CAN_LIE_AND_STAND))
 		canmove = 0
-		lying = locked_to.locked_should_lie
+		lying = (locked_to.lockflags & LOCKED_SHOULD_LIE) ? TRUE : FALSE //A lying value that !=1 will break this
 
 
-	else if( isUnconscious() || weakened || paralysis || resting || sleeping )
+	else if(isUnconscious() || weakened || paralysis || resting || !can_stand)
 		stop_pulling()
 		lying = 1
 		canmove = 0
-	else if( stunned )
+	else if(stunned)
 //		lying = 0
 		canmove = 0
 	else if(captured)
@@ -1464,7 +1465,7 @@ var/list/slot_equipment_priority = list( \
 		canmove = 0
 		lying = 0
 	else
-		lying = !can_stand
+		lying = 0
 		canmove = has_limbs
 
 	if(lying)

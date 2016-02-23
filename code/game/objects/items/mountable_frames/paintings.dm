@@ -120,13 +120,13 @@ var/global/list/available_paintings = list(
 			desc = "A painfully standard painting, used to decorate dining rooms and bathrooms alike."
 		if("Blu")
 			name = "\improper Wai-Blu"
-			desc = "Faithfully Serving NanoTransen during her shift, gladly serving YOU after."
+			desc = "Faithfully Serving Nanotrasen during her shift, gladly serving YOU after."
 		if("Kate")
 			name = "\improper Cindy Kate"
 			desc = "Through the carnage and bloodshed she's gunning for you, champ."
 		if("daddy")
 			name = "\improper I <3 Daddy!"
-			desc = "'NanoTransen respects the right for all associates and their families to be able to express their indivuality though many media. However, soliciting NanoTransen related merchandise without proper warrant is strickly prohibited. Luckly for you, you can now own your very own contraband NanoTransen merch without the threat of *REDACTED*!'"
+			desc = "'Nanotrasen respects the right for all associates and their families to be able to express their indivuality though many media. However, soliciting Nanotrasen related merchandise without proper warrant is strictly prohibited. Luckly for you, you can now own your very own contraband Nanotrasen merch without the threat of *REDACTED*!'"
 		if("carp")
 			name = "\improper 'Singing' Mounted Carp"
 			desc = "Too unrobust to beat a carp to death with your bare hands and mount it on a plank of wood? Then this professionally taxidermied trophy is just for you! Note: Does not actually sing."
@@ -184,6 +184,7 @@ var/global/list/available_paintings = list(
 	icon = 'icons/obj/paintings.dmi'
 	icon_state = "blank"
 	autoignition_temperature = AUTOIGNITION_WOOD
+	anchored = 1
 
 /obj/structure/painting/New()
 	..()
@@ -256,13 +257,13 @@ var/global/list/available_paintings = list(
 			desc = "A painfully standard painting, used to decorate dining rooms and bathrooms alike."
 		if("Blu")
 			name = "\improper Wai-Blu"
-			desc = "Faithfully Serving NanoTransen during her shift, gladly serving YOU after."
+			desc = "Faithfully Serving Nanotrasen during her shift, gladly serving YOU after."
 		if("Kate")
 			name = "\improper Cindy Kate"
 			desc = "Through the carnage and bloodshed she's gunning for you, champ."
 		if("daddy")
 			name = "\improper I <3 Daddy!"
-			desc = "'NanoTransen respects the right for all associates and their families to be able to express their indivuality though many media. However, soliciting NanoTransen related merchandise without proper warrant is strickly prohibited. Luckly for you, you can now own your very own contraband NanoTransen merch without the threat of *REDACTED*!'"
+			desc = "'Nanotrasen respects the right for all associates and their families to be able to express their indivuality though many media. However, soliciting Nanotrasen related merchandise without proper warrant is strictly prohibited. Luckly for you, you can now own your very own contraband Nanotrasen merch without the threat of *REDACTED*!'"
 		if("carp")
 			name = "\improper 'Singing' Mounted Carp"
 			desc = "Too unrobust to beat a carp to death with your bare hands and mount it on a plank of wood? Then this professionally taxidermied trophy is just for you! Note: Does not actually sing."
@@ -286,6 +287,13 @@ var/global/list/available_paintings = list(
 
 	P.attack_hand(user)
 	qdel(src)
+
+/obj/structure/painting/kick_act(mob/living/carbon/human/H)
+	H.visible_message("<span class='danger'>[H] attempts to kick \the [src].</span>", "<span class='danger'>You attempt to kick \the [src].</span>")
+	to_chat(H, "<span class='danger'>Dumb move! You strain a muscle.</span>")
+
+	H.apply_damage(rand(1,2), BRUTE, pick("r_leg", "l_leg", "r_foot", "l_foot"))
+
 
 /obj/structure/painting/cultify()
 	var/obj/structure/painting/narsie/N = new(loc)

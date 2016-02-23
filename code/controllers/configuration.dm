@@ -86,7 +86,7 @@
 	var/server
 	var/banappeals
 	var/wikiurl = "http://baystation12.net/wiki/index.php?title=Main_Page"
-	var/vgws_base_url = "http://ss13.pomf.se" // No hanging slashes.
+	var/vgws_base_url = "http://ss13.moe" // No hanging slashes.
 	var/forumurl = "http://baystation12.net/forums/"
 
 	var/media_base_url = "" // http://ss13.nexisonline.net/media
@@ -166,6 +166,8 @@
 	var/default_ooc_color = "#002eb8"
 
 	var/mommi_static = 0 //Scrambling mobs for mommis or not
+
+	var/skip_minimap_generation = 0 //If 1, don't generate minimaps
 
 /datum/configuration/New()
 	. = ..()
@@ -524,6 +526,8 @@
 					renders_url = value
 				if("mommi_static")
 					mommi_static = 1
+				if("skip_minimap_generation")
+					skip_minimap_generation = 1
 				else
 					diary << "Unknown setting in configuration: '[name]'"
 

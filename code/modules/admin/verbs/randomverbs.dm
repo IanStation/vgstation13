@@ -205,8 +205,7 @@ proc/cmd_admin_mute(mob/M as mob, mute_type, automute = 0)
 
 	var/show_log = alert(src, "Show ion message?", "Message", "Yes", "No")
 	if(show_log == "Yes")
-		command_alert("Ion storm detected near the station. Please check all AI-controlled equipment for errors.", "Anomaly Alert")
-		to_chat(world, sound('sound/AI/ionstorm.ogg'))
+		command_alert("Ion storm detected near the station. Please check all AI-controlled equipment for errors.", "Anomaly Alert",alert='sound/AI/ionstorm.ogg')
 
 	generate_ion_law()
 	feedback_add_details("admin_verb","ION") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
@@ -445,7 +444,6 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		new_character.real_name = record_found.fields["name"]
 		new_character.setGender(record_found.fields["sex"])
 		new_character.age = record_found.fields["age"]
-		new_character.b_type = record_found.fields["b_type"]
 	else
 		new_character.setGender(pick(MALE,FEMALE))
 		var/datum/preferences/A = new()
@@ -467,6 +465,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	if(record_found)//Pull up their name from database records if they did have a mind.
 		new_character.dna = new()//Let's first give them a new DNA.
 		new_character.dna.unique_enzymes = record_found.fields["b_dna"]//Enzymes are based on real name but we'll use the record for conformity.
+		new_character.dna.b_type = record_found.fields["b_type"]
 
 		// I HATE BYOND.  HATE.  HATE. - N3X
 		var/list/newSE= record_found.fields["enzymes"]
@@ -564,8 +563,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 	var/show_log = alert(src, "Show ion message?", "Message", "Yes", "No")
 	if(show_log == "Yes")
-		command_alert("Ion storm detected near the station. Please check all AI-controlled equipment for errors.", "Anomaly Alert")
-		to_chat(world, sound('sound/AI/ionstorm.ogg'))
+		command_alert("Ion storm detected near the station. Please check all AI-controlled equipment for errors.", "Anomaly Alert",alert='sound/AI/ionstorm.ogg')
 	feedback_add_details("admin_verb","IONC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_admin_rejuvenate(mob/living/M as mob in mob_list)
@@ -597,12 +595,16 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	if(!holder)
 		to_chat(src, "Only administrators may use this command.")
 		return
+	if(!map.linked_to_centcomm)
+		var/confirmation = alert("The station is not linked to central command by a relay. Ruin immersion?",,"Yes","No")
+		if(confirmation == "No")
+			return
 	var/input = input(usr, "Please enter anything you want. Anything. Serious.", "What?", "") as message|null
 	var/customname = input(usr, "Pick a title for the report.", "Title") as text|null
 	if(!input)
 		return
 	if(!customname)
-		customname = "NanoTrasen Update"
+		customname = "Nanotrasen Update"
 	for (var/obj/machinery/computer/communications/C in machines)
 		if(! (C.stat & (BROKEN|NOPOWER) ) )
 			var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( C.loc )
@@ -614,9 +616,9 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 	switch(alert("Should this be announced to the general population?",,"Yes","No"))
 		if("Yes")
-			command_alert(input, customname);
+			command_alert(input, customname,1);
 		if("No")
-			to_chat(world, "<span class='warning'>New NanoTrasen Update available at all communication consoles.</span>")
+			to_chat(world, "<span class='warning'>New Nanotrasen Update available at all communication consoles.</span>")
 
 	to_chat(world, sound('sound/AI/commandreport.ogg', volume = 60))
 	log_admin("[key_name(src)] has created a command report: [input]")

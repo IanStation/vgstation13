@@ -83,6 +83,7 @@
 	if(!dna)
 		dna = new /datum/dna(null)
 		dna.species=species.name
+		dna.b_type = random_blood_type()
 
 	hud_list[HEALTH_HUD]      = image('icons/mob/hud.dmi', src, "hudhealth100")
 	hud_list[STATUS_HUD]      = image('icons/mob/hud.dmi', src, "hudhealthy")
@@ -218,12 +219,19 @@
 		if(M.attack_sound)
 			playsound(loc, M.attack_sound, 50, 1, 1)
 		add_logs(M, src, "attacked", admin=0)
+
 		var/damage = rand(M.melee_damage_lower, M.melee_damage_upper)
 		var/dam_zone = pick("chest", "l_hand", "r_hand", "l_leg", "r_leg")
+
 		if(M.zone_sel && M.zone_sel.selecting)
 			dam_zone = M.zone_sel.selecting
+
+		if(check_shields(damage)) //Shield check
+			return
+
 		var/datum/organ/external/affecting = get_organ(ran_zone(dam_zone))
-		var/armor = run_armor_check(affecting, "melee")
+		var/armor = run_armor_check(affecting, "melee") //Armor check
+
 		apply_damage(damage, M.melee_damage_type, affecting, armor)
 		src.visible_message("<span class='danger'>[M] [M.attacktext] [src] in \the [affecting.display_name]!</span>")
 
@@ -424,14 +432,15 @@
 // called when something steps onto a human
 // this could be made more general, but for now just handle mulebot
 /mob/living/carbon/human/Crossed(var/atom/movable/AM)
-	if(istype(AM,/obj/machinery/bot/mulebot))
-		var/obj/machinery/bot/mulebot/MB = AM
+	var/obj/machinery/bot/mulebot/MB = AM
+	if(istype(MB))
 		MB.RunOverCreature(src,species.blood_color)
-	else if(istype(AM,/obj/structure/bed/chair/vehicle/wheelchair/motorized/syndicate))
-		var/obj/structure/bed/chair/vehicle/wheelchair/motorized/syndicate/WC = AM
-		WC.crush(src,species.blood_color)
 	else
-		return //Don't make blood
+		var/obj/structure/bed/chair/vehicle/wheelchair/motorized/syndicate/WC = AM
+		if(istype(WC))
+			WC.crush(src,species.blood_color)
+		else
+			return //Don't make blood
 	var/obj/effect/decal/cleanable/blood/B = getFromPool(/obj/effect/decal/cleanable/blood, get_turf(src))
 	B.New(B.loc)
 	B.blood_DNA = list()
@@ -471,10 +480,10 @@
 	return
 //repurposed proc. Now it combines get_id_name() and get_face_name() to determine a mob's name variable. Made into a seperate proc as it'll be useful elsewhere
 /mob/living/carbon/human/proc/get_visible_name()
-	if( wear_mask && (wear_mask.flags_inv&HIDEFACE) && !istype(wear_mask,/obj/item/clothing/mask/gas/golem))	//Wearing a mask which hides our face, use id-name if possible
+	if( wear_mask && (is_slot_hidden(wear_mask.body_parts_covered,HIDEFACE)) && !istype(wear_mask,/obj/item/clothing/mask/gas/golem))	//Wearing a mask which hides our face, use id-name if possible
 		return get_id_name("Unknown")
-	if( head && (head.flags_inv&HIDEFACE) )
-		return get_id_name("Unknown")		//Likewise for hats
+	if( head && (is_slot_hidden(head.body_parts_covered,HIDEFACE)))
+		return get_id_name("Unknown")	//Likewise for hats
 	if(mind && mind.vampire && (VAMP_SHADOW in mind.vampire.powers) && mind.vampire.ismenacing)
 		return get_id_name("Unknown")
 	var/face_name = get_face_name()
@@ -484,8 +493,8 @@
 	return face_name
 //Returns "Unknown" if facially disfigured and real_name if not. Useful for setting name when polyacided or when updating a human's name variable
 /mob/living/carbon/human/proc/get_face_name()
-	var/datum/organ/external/head/head = get_organ("head")
-	if( !head || head.disfigured || (head.status & ORGAN_DESTROYED) || !real_name || (M_HUSK in mutations) )	//disfigured. use id-name if possible
+	var/datum/organ/external/head/head_organ = get_organ("head")
+	if((wear_mask && (is_slot_hidden(wear_mask.body_parts_covered,HIDEFACE)) && !istype(wear_mask,/obj/item/clothing/mask/gas/golem)) || ( head && (is_slot_hidden(head.body_parts_covered,HIDEFACE))) || !head_organ || head_organ.disfigured || (head_organ.status & ORGAN_DESTROYED) || !real_name || (M_HUSK in mutations) )	//Wearing a mask which hides our face, use id-name if possible
 		return "Unknown"
 	return real_name
 
@@ -561,7 +570,7 @@
 
 /mob/living/carbon/human/Topic(href, href_list)
 	var/pickpocket = 0
-	var/able = (!usr.stat && usr.canmove && !usr.restrained() && in_range(src, usr) && Adjacent(usr))
+	var/able = (!usr.incapacitated() && in_range(src, usr) && Adjacent(usr))
 
 	if(href_list["item"])
 		if (!able) return
@@ -917,12 +926,16 @@
 	. = 0
 	var/obj/item/clothing/head/headwear = src.head
 	var/obj/item/clothing/glasses/eyewear = src.glasses
+	var/datum/organ/internal/eyes/E = src.internal_organs_by_name["eyes"]
 
 	if (istype(headwear))
 		. += headwear.eyeprot
 
 	if (istype(eyewear))
 		. += eyewear.eyeprot
+
+	if(E)
+		. += E.eyeprot
 
 	return Clamp(., -1, 2)
 
@@ -1098,7 +1111,7 @@
 	return 1
 
 /mob/living/carbon/human/proc/get_visible_gender()
-	if(wear_suit && wear_suit.flags_inv & HIDEJUMPSUIT && ((head && head.flags_inv & HIDEMASK) || wear_mask))
+	if(wear_suit && is_slot_hidden(wear_suit.body_parts_covered,HIDEJUMPSUIT) && ((is_slot_hidden(head.body_parts_covered,HIDEMASK)) || is_slot_hidden(wear_mask.body_parts_covered,HIDEMASK)))
 		return NEUTER
 	return gender
 
@@ -1369,9 +1382,12 @@
 
 	if(src.species)
 		//if(src.species.language)	src.remove_language(species.language)
-		if(src.species.abilities)	src.verbs -= species.abilities
+		if(src.species.abilities)
+			src.verbs -= species.abilities
 		if(species.language)
 			remove_language(species.language)
+		species.clear_organs(src)
+
 	var/datum/species/S = all_species[new_species_name]
 
 	src.species = new S.type
@@ -1383,8 +1399,11 @@
 	if(src.species.abilities)
 		//if(src.species.language)	src.add_language(species.language)
 		if(src.species.abilities)	src.verbs |= species.abilities
-	if(force_organs || !src.organs || !src.organs.len)	src.species.create_organs(src)
-	src.see_in_dark = species.darksight
+	if(force_organs || !src.organs || !src.organs.len)
+		src.species.create_organs(src)
+	var/datum/organ/internal/eyes/E = src.internal_organs_by_name["eyes"]
+	if(E)
+		src.see_in_dark = E.see_in_dark //species.darksight
 	if(src.see_in_dark > 2)	src.see_invisible = SEE_INVISIBLE_LEVEL_ONE
 	else					src.see_invisible = SEE_INVISIBLE_LIVING
 	if((src.species.default_mutations.len > 0) || (src.species.default_blocks.len > 0))
@@ -1611,3 +1630,82 @@
 		to_chat(src, "<i>[pick(boo_phrases)]</i>")
 	else
 		to_chat(src, "<b><font color='[pick("red","orange","yellow","green","blue")]'>[pick(boo_phrases_drugs)]</font></b>")
+
+// Makes all robotic limbs organic.
+/mob/living/carbon/human/proc/make_robot_limbs_organic()
+	for(var/datum/organ/external/O in src.organs)
+		if(O.is_robotic())
+			O &= ~ORGAN_ROBOT
+	update_icons()
+
+// Makes all robot internal organs organic.
+/mob/living/carbon/human/proc/make_robot_internals_organic()
+	for(var/datum/organ/internal/O in src.organs)
+		if(O.robotic)
+			O.robotic = 0
+
+// Makes all robot organs, internal and external, organic.
+/mob/living/carbon/human/proc/make_all_robot_parts_organic()
+	make_robot_limbs_organic()
+	make_robot_internals_organic()
+
+/mob/living/carbon/human/proc/set_attack_type(new_type = NORMAL_ATTACK)
+	kick_icon.icon_state = "act_kick"
+	bite_icon.icon_state = "act_bite"
+
+	if(attack_type == new_type)
+		attack_type = NORMAL_ATTACK
+		return
+
+	attack_type = new_type
+	switch(attack_type)
+		if(NORMAL_ATTACK)
+
+		if(ATTACK_KICK)
+			kick_icon.icon_state = "act_kick_on"
+		if(ATTACK_BITE)
+			bite_icon.icon_state = "act_bite_on"
+
+/mob/living/carbon/human/proc/can_kick(atom/target)
+	//Need two feet to kick!
+
+	if(legcuffed)
+		return 0
+
+	if(target && !isturf(target) && !isturf(target.loc))
+		return 0
+
+	var/datum/organ/external/left_foot = get_organ("l_foot")
+	if(!left_foot)
+		return 0
+	else if(left_foot.status & ORGAN_DESTROYED)
+		return 0
+
+	var/datum/organ/external/right_foot = get_organ("r_foot")
+	if(!right_foot)
+		return 0
+	else if(right_foot.status & ORGAN_DESTROYED)
+		return 0
+
+	return 1
+
+/mob/living/carbon/human/proc/can_bite(atom/target)
+	//Need a mouth to bite
+
+	if(!hasmouth)
+		return 0
+
+	//Need at least two teeth or a beak to bite
+
+	if(check_body_part_coverage(MOUTH))
+		if(!isvampire(src)) //Vampires can bite through masks
+			return 0
+
+	if(M_BEAK in mutations)
+		return 1
+
+	var/datum/butchering_product/teeth/T = locate(/datum/butchering_product/teeth) in src.butchering_drops
+	if(T && T.amount >= 2)
+		return 1
+
+	return 0

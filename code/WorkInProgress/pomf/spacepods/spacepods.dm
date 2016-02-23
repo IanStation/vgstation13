@@ -143,7 +143,7 @@
 				to_chat(user, "<span class='notice'>The pod already has a weapon system, remove it first.</span>")
 				return
 			else
-				if(user.drop_item(W, equipment_system))
+				if(user.drop_item(W, src))
 					to_chat(user, "<span class='notice'>You insert \the [W] into the equipment system.</span>")
 					equipment_system.weapon_system = W
 					equipment_system.weapon_system.my_atom = src
@@ -315,9 +315,9 @@
 	set name = "Enter Pod"
 	set src in oview(1)
 
-	if(usr.restrained() || usr.isUnconscious() || usr.weakened || usr.stunned || usr.paralysis || usr.resting) //are you cuffed, dying, lying, stunned or other
+	if(usr.incapacitated() || usr.lying) //are you cuffed, dying, lying, stunned or other
 		return
-	if (usr.stat || !ishuman(usr))
+	if (!ishuman(usr))
 		return
 	if (src.occupant)
 		to_chat(usr, "<span class='notice'><B>The [src.name] is already occupied!</B></span>")

@@ -28,6 +28,12 @@
 			I.bots += src
 	..()
 
+/obj/machinery/bot/Destroy()
+	. = ..()
+	if(botcard)
+		qdel(botcard)
+		botcard = null
+
 /obj/machinery/bot/proc/turn_on()
 	if(stat)	return 0
 	on = 1
@@ -130,6 +136,15 @@
 			healthcheck()
 		else
 			..()
+
+/obj/machinery/bot/kick_act(mob/living/H)
+	..()
+
+	if(flags & INVULNERABLE)
+		return
+
+	health -= rand(1,8) * brute_dam_coeff
+	healthcheck()
 
 /obj/machinery/bot/bullet_act(var/obj/item/projectile/Proj)
 	if(flags & INVULNERABLE)

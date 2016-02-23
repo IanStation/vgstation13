@@ -201,10 +201,6 @@
 		O.dir = direct
 
 /client/Move(loc,dir)
-	if(!mob)
-		return // Moved here to avoid nullrefs below. - N3X
-	if(mob.timestopped)
-		return 0
 	if(move_delayer.next_allowed > world.time)
 		return 0
 
@@ -223,10 +219,6 @@
 	if(mob.incorporeal_move)
 		Process_Incorpmove(dir)
 		return
-
-	for(var/obj/effect/stop/S in mob.loc)
-		if(S.victim == mob)
-			return
 
 	if(mob.stat == DEAD)
 		return

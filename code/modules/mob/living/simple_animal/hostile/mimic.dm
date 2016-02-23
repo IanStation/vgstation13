@@ -300,7 +300,7 @@ var/global/list/crate_mimic_disguises = list(\
 	return ..()
 
 /mob/living/simple_animal/hostile/mimic/crate/chest/relaymove(mob/user)
-	if(user.stat || user.stunned || user.weakened || user.paralysis)
+	if(user.incapacitated())
 		return
 
 	if(user.loc == src) //We're inside the chest
@@ -601,6 +601,11 @@ var/global/list/protected_objects = list(
 			move_to_delay = 2 * I.w_class
 
 		maxHealth = health
+
+		for(var/atom/movable/AM in O.locked_atoms) //What could go wrong
+			O.unlock_atom(AM)
+			src.lock_atom(AM)
+
 		if(creator)
 			src.creator = creator
 			faction = "\ref[creator]" // very unique
