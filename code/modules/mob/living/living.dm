@@ -264,6 +264,8 @@
 /mob/living/proc/adjustOxyLoss(var/amount)
 	if(status_flags & GODMODE)	return 0	//godmode
 	oxyloss = min(max(oxyloss + amount, 0),(maxHealth*2))
+	if(ishuman(src))
+		world << "[src.name] recieved [amount] damage"
 
 /mob/living/proc/setOxyLoss(var/amount)
 	if(status_flags & GODMODE)	return 0	//godmode
